@@ -8,7 +8,7 @@ method: "POST",
 
 headers: {
 "Content-Type": "application/json",
-"Authorization": "Bearer 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
+"Authorization": "Bearer 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"
 },
 
 body: JSON.stringify({
