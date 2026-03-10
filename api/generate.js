@@ -31,16 +31,20 @@ content: `Write a short viral TikTok script about ${topic}. Include a hook, scri
 
 const data = await response.json()
 
+if (data.error) {
+return res.status(500).json({ text: data.error.message })
+}
+
 res.status(200).json({
-text: data.choices?.[0]?.message?.content || "No response"
+text: data.choices[0].message.content
 })
 
 }
 
-catch(error){
+catch (error) {
 
 res.status(500).json({
-text: "Server error"
+text: error.message
 })
 
 }
