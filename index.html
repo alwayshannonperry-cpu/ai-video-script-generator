@@ -1,40 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>AI Video Script Generator</title>
-</head>
-
-<body>
-
-<h1>AI Short Video Script Generator</h1>
-
-<input id="topic" placeholder="Video topic">
-<br><br>
-
-<button onclick="generate()">Generate Script</button>
-
-<p id="result"></p>
+<button onclick="copyScript()">Copy Script</button>
 
 <script>
-
-async function generate(){
-
-let topic = document.getElementById("topic").value;
-
-let response = await fetch("/api/generate",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({topic:topic})
-})
-
-let data = await response.json()
-
-document.getElementById("result").innerText = data.text
-
+function copyScript(){
+let text = document.getElementById("result").innerText
+navigator.clipboard.writeText(text)
+alert("Script copied")
 }
-
 </script>
-
-</body>
-
-</html>
