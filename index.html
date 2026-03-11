@@ -8,7 +8,7 @@
 <style>
 
 body{
-font-family: Arial, sans-serif;
+font-family: Arial;
 background:#f4f4f4;
 text-align:center;
 padding:40px;
@@ -18,12 +18,12 @@ padding:40px;
 background:white;
 padding:30px;
 border-radius:10px;
-max-width:500px;
+max-width:600px;
 margin:auto;
 box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
 
-input{
+input,select{
 width:80%;
 padding:10px;
 font-size:16px;
@@ -62,37 +62,39 @@ border-radius:5px;
 
 <br><br>
 
-<input id="topic" placeholder="Enter your video topic">
+<input id="topic" placeholder="Enter video topic">
 
 <br><br>
 
-<button onclick="generate()">Generate Script</button>
+<select id="style">
+<option value="viral">Viral Hook</option>
+<option value="story">Storytelling</option>
+<option value="sales">Sales / Promotion</option>
+</select>
 
-<button onclick="copyScript()">Copy Script</button>
+<br><br>
 
+<button onclick="generate()">Generate</button>
+<button onclick="copyScript()">Copy</button>
 <button onclick="clearScript()">Clear</button>
+<button onclick="shareTool()">Share Tool</button>
 
 <p id="result"></p>
 
 <p>
-Free plan: 20 scripts per day<br>
-Unlimited scripts coming soon
+Free plan: 20 scripts per day  
+Pro version coming soon
 </p>
 
 </div>
 
 <script>
 
-document.getElementById("topic").addEventListener("keypress",function(event){
-if(event.key==="Enter"){
-generate()
-}
-})
-
 async function generate(){
 
 let email=document.getElementById("email").value
 let topic=document.getElementById("topic").value
+let style=document.getElementById("style").value
 
 if(!email){
 document.getElementById("result").innerText="Enter your email first."
@@ -100,7 +102,7 @@ return
 }
 
 if(!topic){
-document.getElementById("result").innerText="Enter a topic first."
+document.getElementById("result").innerText="Enter a topic."
 return
 }
 
@@ -109,7 +111,7 @@ document.getElementById("result").innerText="Generating..."
 let response=await fetch("/api/generate",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({topic:topic,email:email})
+body:JSON.stringify({topic:topic,style:style,email:email})
 })
 
 let data=await response.json()
@@ -119,24 +121,22 @@ document.getElementById("result").innerText=data.text
 }
 
 function copyScript(){
-
 let text=document.getElementById("result").innerText
-
 navigator.clipboard.writeText(text)
-
-alert("Script copied")
-
+alert("Copied")
 }
 
 function clearScript(){
-
 document.getElementById("result").innerText=""
 document.getElementById("topic").value=""
+}
 
+function shareTool(){
+navigator.clipboard.writeText(window.location.href)
+alert("Link copied")
 }
 
 </script>
 
 </body>
-
 </html>
