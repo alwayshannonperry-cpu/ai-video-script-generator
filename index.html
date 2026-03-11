@@ -3,7 +3,7 @@
 
 <head>
 
-<title>AI Video Script Generator</title>
+<title>Viral Video Script Generator</title>
 
 <style>
 
@@ -54,9 +54,13 @@ border-radius:5px;
 
 <div class="container">
 
-<h1>AI Short Video Script Generator</h1>
+<h1>Viral Video Script Generator</h1>
 
-<p>Create viral TikTok, Reels, or Shorts scripts instantly.</p>
+<p>Create TikTok, Reels, and Shorts scripts instantly.</p>
+
+<input id="email" placeholder="Enter your email">
+
+<br><br>
 
 <input id="topic" placeholder="Enter your video topic">
 
@@ -70,22 +74,33 @@ border-radius:5px;
 
 <p id="result"></p>
 
+<p>
+Free plan: 20 scripts per day<br>
+Unlimited scripts coming soon
+</p>
+
 </div>
 
 <script>
 
-document.getElementById("topic").addEventListener("keypress", function(event){
-if(event.key === "Enter"){
+document.getElementById("topic").addEventListener("keypress",function(event){
+if(event.key==="Enter"){
 generate()
 }
 })
 
 async function generate(){
 
+let email=document.getElementById("email").value
 let topic=document.getElementById("topic").value
 
+if(!email){
+document.getElementById("result").innerText="Enter your email first."
+return
+}
+
 if(!topic){
-document.getElementById("result").innerText="Please enter a topic first."
+document.getElementById("result").innerText="Enter a topic first."
 return
 }
 
@@ -94,7 +109,7 @@ document.getElementById("result").innerText="Generating..."
 let response=await fetch("/api/generate",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({topic:topic})
+body:JSON.stringify({topic:topic,email:email})
 })
 
 let data=await response.json()
@@ -106,11 +121,6 @@ document.getElementById("result").innerText=data.text
 function copyScript(){
 
 let text=document.getElementById("result").innerText
-
-if(!text){
-alert("Nothing to copy yet.")
-return
-}
 
 navigator.clipboard.writeText(text)
 
