@@ -1,6 +1,6 @@
 let requests = {}
 
-export default async function handler(req, res) {
+export default function handler(req,res){
 
 if(req.method !== "POST"){
 return res.status(405).json({text:"Method not allowed"})
@@ -29,7 +29,7 @@ text:"Daily free limit reached. Try again tomorrow."
 
 requests[ip].count++
 
-const topic = req.body?.topic
+const topic=req.body?.topic
 
 if(!topic){
 return res.status(400).json({
