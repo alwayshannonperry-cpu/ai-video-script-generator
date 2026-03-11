@@ -1,31 +1,27 @@
 # Viral Video Script Generator
 
-A simple tool that generates short video scripts for TikTok, Instagram Reels, and YouTube Shorts.
+A simple web app that helps creators generate short-form video scripts.
 
 ## Features
 
-• Script generator  
-• Hook, script, caption, hashtags  
-• Copy script button  
-• Email capture  
-• Daily usage limit  
+Script generator  
+Multiple script styles  
+Title generation  
+Caption generation  
+Hashtags  
+Copy button  
+Daily usage limits  
+Email capture
 
-## How It Works
-
-1 Enter email  
-2 Enter video topic  
-3 Click generate  
-4 Copy the script
-
-## Tech Stack
+## Built With
 
 HTML  
 JavaScript  
 Serverless functions  
-Vercel hosting  
+Vercel
 
-## Future Plans
+## Future Features
 
-AI script generation  
-Multiple script styles  
-Unlimited paid plan
+AI generated scripts  
+Multiple content formats  
+Paid unlimited plan
