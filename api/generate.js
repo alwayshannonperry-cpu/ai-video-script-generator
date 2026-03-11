@@ -23,36 +23,87 @@ requests[ip] = {count:0,time:now}
 
 if(requests[ip].count >= 20){
 return res.status(429).json({
-text:"Daily free limit reached. Try again tomorrow."
+text:"Daily free limit reached"
 })
 }
 
 requests[ip].count++
 
 const topic=req.body?.topic
+const style=req.body?.style || "viral"
 
 if(!topic){
-return res.status(400).json({
-text:"Please enter a topic."
-})
+return res.status(400).json({text:"Enter topic"})
 }
 
-const script = `
+let script=""
+
+if(style==="viral"){
+script=`
+TITLE:
+The Truth About ${topic}
+
 HOOK:
-Stop scrolling if you want to learn about ${topic}.
+Stop scrolling if you care about ${topic}
 
 SCRIPT:
-Here are three quick tips about ${topic}.
-1. Start simple
-2. Stay consistent
-3. Improve daily
+Most people do ${topic} wrong.
+Here are 3 quick tips.
+
+Tip 1
+Tip 2
+Tip 3
 
 CAPTION:
-Quick tips about ${topic} creators should try today.
+Quick ${topic} tips creators should know.
 
 HASHTAGS:
-#shorts #contentcreator #${topic.replace(/\s/g,"")}
+#viral #shorts #${topic.replace(/\s/g,"")}
 `
+}
+
+if(style==="story"){
+script=`
+TITLE:
+My Experience With ${topic}
+
+HOOK:
+I tried ${topic} for 30 days.
+
+SCRIPT:
+At first it was difficult.
+But then something surprising happened.
+
+Here is what I learned.
+
+CAPTION:
+Real story about ${topic}
+
+HASHTAGS:
+#storytime #shorts #${topic.replace(/\s/g,"")}
+`
+}
+
+if(style==="sales"){
+script=`
+TITLE:
+Why You Need ${topic}
+
+HOOK:
+If you struggle with ${topic} watch this.
+
+SCRIPT:
+Most people waste time doing it wrong.
+
+Here is the solution.
+
+CAPTION:
+Better results with ${topic}
+
+HASHTAGS:
+#marketing #shorts #${topic.replace(/\s/g,"")}
+`
+}
 
 res.status(200).json({text:script})
 
