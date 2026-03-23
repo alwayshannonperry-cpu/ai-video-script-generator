@@ -1,110 +1,134 @@
-let requests = {}
+<!DOCTYPE html>
+<html>
 
-export default function handler(req,res){
+<head>
 
-if(req.method !== "POST"){
-return res.status(405).json({text:"Method not allowed"})
+<title>Viral Video Script Generator</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f4f4f4;
+  text-align:center;
+  padding:40px;
 }
-
-const ip =
-req.headers["x-forwarded-for"] ||
-req.socket?.remoteAddress ||
-"unknown"
-
-const now = Date.now()
-
-if(!requests[ip]){
-requests[ip] = {count:0,time:now}
+.container{
+  background:white;
+  padding:30px;
+  border-radius:10px;
+  max-width:600px;
+  margin:auto;
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
-
-if(now - requests[ip].time > 86400000){
-requests[ip] = {count:0,time:now}
+input,select{
+  width:80%;
+  padding:10px;
+  font-size:16px;
+  margin-top:10px;
 }
+button{
+  padding:10px 20px;
+  font-size:16px;
+  margin-top:10px;
+  cursor:pointer;
+}
+#result{
+  margin-top:20px;
+  white-space:pre-wrap;
+  text-align:left;
+  background:#fafafa;
+  padding:15px;
+  border-radius:5px;
+}
+</style>
 
-if(requests[ip].count >= 20){
-return res.status(429).json({
-text:"Daily free limit reached"
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Viral Video Script Generator</h1>
+<p>Create TikTok, Reels, and Shorts scripts instantly.</p>
+
+<input id="email" placeholder="Enter your email">
+
+<br><br>
+
+<input id="topic" placeholder="Enter video topic">
+
+<br><br>
+
+<select id="style">
+  <option value="viral">Viral Hook</option>
+  <option value="story">Storytelling</option>
+  <option value="sales">Sales / Promotion</option>
+</select>
+
+<br><br>
+
+<button onclick="generate()">Generate</button>
+<button onclick="copyScript()">Copy</button>
+<button onclick="clearScript()">Clear</button>
+<button onclick="shareTool()">Share Tool</button>
+
+<p id="result"></p>
+
+<p>Free plan: 20 scripts per day | Pro version coming soon</p>
+
+</div>
+
+<script>
+document.getElementById("topic").addEventListener("keypress", function(event){
+  if(event.key==="Enter"){ generate() }
 })
+
+async function generate(){
+  let email = document.getElementById("email").value
+  let topic = document.getElementById("topic").value
+  let style = document.getElementById("style").value
+
+  if(!email){
+    document.getElementById("result").innerText="Enter your email first."
+    return
+  }
+  if(!topic){
+    document.getElementById("result").innerText="Enter a topic."
+    return
+  }
+
+  document.getElementById("result").innerText="Generating..."
+
+  try{
+    let response = await fetch("/api/generate",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({topic, style, email})
+    })
+    let data = await response.json()
+    document.getElementById("result").innerText = data.text
+  }catch(e){
+    document.getElementById("result").innerText="Error generating script."
+  }
 }
 
-requests[ip].count++
-
-const topic=req.body?.topic
-const style=req.body?.style || "viral"
-
-if(!topic){
-return res.status(400).json({text:"Enter topic"})
+function copyScript(){
+  let text=document.getElementById("result").innerText
+  if(!text) return alert("Nothing to copy yet.")
+  navigator.clipboard.writeText(text)
+  alert("Copied")
 }
 
-let script=""
-
-if(style==="viral"){
-script=`
-TITLE:
-The Truth About ${topic}
-
-HOOK:
-Stop scrolling if you care about ${topic}
-
-SCRIPT:
-Most people do ${topic} wrong.
-Here are 3 quick tips.
-
-Tip 1
-Tip 2
-Tip 3
-
-CAPTION:
-Quick ${topic} tips creators should know.
-
-HASHTAGS:
-#viral #shorts #${topic.replace(/\s/g,"")}
-`
+function clearScript(){
+  document.getElementById("result").innerText=""
+  document.getElementById("topic").value=""
 }
 
-if(style==="story"){
-script=`
-TITLE:
-My Experience With ${topic}
-
-HOOK:
-I tried ${topic} for 30 days.
-
-SCRIPT:
-At first it was difficult.
-But then something surprising happened.
-
-Here is what I learned.
-
-CAPTION:
-Real story about ${topic}
-
-HASHTAGS:
-#storytime #shorts #${topic.replace(/\s/g,"")}
-`
+function shareTool(){
+  navigator.clipboard.writeText(window.location.href)
+  alert("Link copied")
 }
+</script>
 
-if(style==="sales"){
-script=`
-TITLE:
-Why You Need ${topic}
-
-HOOK:
-If you struggle with ${topic} watch this.
-
-SCRIPT:
-Most people waste time doing it wrong.
-
-Here is the solution.
-
-CAPTION:
-Better results with ${topic}
-
-HASHTAGS:
-#marketing #shorts #${topic.replace(/\s/g,"")}
-`
-}
-
-res.status(200).json({text:script})
-
-}
+</body>
+</html>
