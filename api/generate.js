@@ -4,74 +4,78 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// in‑memory daily usage tracking
 let requests = {}
 
-// manually maintained pro user list
-const proUsers = ["yourpaidemail@example.com"]; 
+// TEMP manual pro users
+const proUsers = ["your@email.com"]
 
 export default async function handler(req,res){
-  if(req.method!=="POST") return res.status(405).json({ text:"Method not allowed" });
 
-  const ip = req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "unknown";
-  const now = Date.now();
+if(req.method!=="POST"){
+return res.status(405).json({text:"Method not allowed"})
+}
 
-  if(!requests[ip]) requests[ip]={count:0,time:now};
-  if(now - requests[ip].time > 86400000) requests[ip]={count:0,time:now};
+const {email,topic} = req.body
 
-  const { topic, style, email } = req.body;
-  if(!topic || !email) return res.status(400).json({text:"Topic and email required."});
+if(!email || !topic){
+return res.status(400).json({text:"Missing info"})
+}
 
-  // free daily limit
-  if(!proUsers.includes(email) && requests[ip].count>=20){
-    return res.status(429).json({ text:"Free daily limit reached. Upgrade for unlimited viral scripts." });
-  }
-  requests[ip].count++;
+const ip=req.headers["x-forwarded-for"]||"unknown"
 
-  try{
-    // if user paid
-    if(proUsers.includes(email)){
-      const prompt = `Create a viral short‑form video script optimized for engagement on TikTok, Reels, and Shorts for topic: "${topic}". Include:
-      - Eye‑catching hook
-      - 3‑step story or message
-      - Strong call‑to‑action
-      - Viral‑style caption and hashtags
-      Use persuasive language, curiosity triggers, and engagement psychology.`;
+if(!requests[ip]) requests[ip]={count:0,time:Date.now()}
 
-      const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: [{ role:"user", content: prompt }],
-        max_tokens: 350
-      });
+if(Date.now()-requests[ip].time>86400000){
+requests[ip]={count:0,time:Date.now()}
+}
 
-      const text = completion.choices[0].message.content;
-      return res.status(200).json({ text });
-    }
+if(!proUsers.includes(email) && requests[ip].count>=5){
+return res.status(429).json({
+text:"Free limit reached. Upgrade for viral scripts."
+})
+}
 
-    // FREE GENERIC SCRIPT
-    const genericScript = `
-Generic Script for "${topic}"
+requests[ip].count++
 
+try{
+
+// 🔥 PRO USERS GET AI VIRAL SCRIPT
+if(proUsers.includes(email)){
+
+const completion = await openai.chat.completions.create({
+model:"gpt-3.5-turbo",
+messages:[{
+role:"user",
+content:`Write a VIRAL TikTok script about ${topic}. Include hook, script, caption, hashtags.`
+}],
+max_tokens:300
+})
+
+return res.status(200).json({
+text:completion.choices[0].message.content
+})
+
+}
+
+// 🧊 FREE USERS GET BASIC SCRIPT
+const basic = `
 HOOK:
-Learn something new about ${topic}.
+Learn about ${topic}
 
 SCRIPT:
-Here are three points about ${topic}:
-1. ...
-2. ...
-3. ...
+Here are 3 simple points about ${topic}
 
 CAPTION:
-Learn more about ${topic}.
+Quick tips on ${topic}
 
 HASHTAGS:
-#${topic.replace(/\s/g,"")} #shorts
-`;
+#${topic.replace(/\s/g,"")}
+`
 
-    return res.status(200).json({ text:genericScript });
+return res.status(200).json({text:basic})
 
-  } catch(err){
-    console.error(err);
-    return res.status(500).json({ text:"Error generating script." });
-  }
+}catch(e){
+return res.status(500).json({text:"Error"})
+}
+
 }
