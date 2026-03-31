@@ -1,67 +1,64 @@
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+apiKey: process.env.OPENAI_API_KEY
 });
 
-// Track free usage
-let requests = {};
+let requests = {}
 
-// ADD YOUR EMAIL HERE FOR PRO ACCESS TESTING
-const proUsers = ["your@email.com"];
+// ADD YOUR EMAIL HERE TO TEST PRO
+const proUsers = ["your@email.com"]
 
 export default async function handler(req,res){
 
 if(req.method!=="POST"){
-return res.status(405).json({text:"Method not allowed"});
+return res.status(405).json({text:"Method not allowed"})
 }
 
-const {email,topic} = req.body;
+const {email,topic} = req.body
 
 if(!email || !topic){
-return res.status(400).json({text:"Missing info"});
+return res.status(400).json({text:"Missing info"})
 }
 
-const ip = req.headers["x-forwarded-for"] || "unknown";
+const ip=req.headers["x-forwarded-for"]||"unknown"
 
-if(!requests[ip]){
-requests[ip] = {count:0,time:Date.now()};
-}
+if(!requests[ip]) requests[ip]={count:0,time:Date.now()}
 
-if(Date.now() - requests[ip].time > 86400000){
-requests[ip] = {count:0,time:Date.now()};
+if(Date.now()-requests[ip].time>86400000){
+requests[ip]={count:0,time:Date.now()}
 }
 
 // FREE LIMIT
-if(!proUsers.includes(email) && requests[ip].count >= 5){
+if(!proUsers.includes(email) && requests[ip].count>=5){
 return res.status(429).json({
 text:"Free limit reached. Upgrade for viral scripts."
-});
+})
 }
 
-requests[ip].count++;
+requests[ip].count++
 
 try{
 
-// 🔥 PRO USERS (AI VIRAL SCRIPT)
+// 🔥 PRO USERS
 if(proUsers.includes(email)){
 
 const completion = await openai.chat.completions.create({
 model:"gpt-3.5-turbo",
 messages:[{
 role:"user",
-content:`Write a highly engaging viral TikTok script about ${topic}. Include hook, script, caption, and hashtags.`
+content:`Write a highly engaging viral TikTok script about ${topic}. Include hook, script, caption, hashtags.`
 }],
 max_tokens:300
-});
+})
 
 return res.status(200).json({
-text: completion.choices[0].message.content
-});
+text:completion.choices[0].message.content
+})
 
 }
 
-// 🧊 FREE USERS (GENERIC SCRIPT)
+// 🧊 FREE USERS
 const basic = `
 HOOK:
 Learn about ${topic}
@@ -74,21 +71,12 @@ Quick tips on ${topic}
 
 HASHTAGS:
 #${topic.replace(/\s/g,"")}
-`;
-
-return res.status(200).json({text: basic});
-
-}catch(error){
-console.error(error);
-return res.status(500).json({text:"Error generating script"});
-}
-
-}
+`
 
 return res.status(200).json({text:basic})
 
 }catch(e){
-return res.status(500).json({text:"Error"})
+return res.status(500).json({text:"Error generating script"})
 }
 
 }
