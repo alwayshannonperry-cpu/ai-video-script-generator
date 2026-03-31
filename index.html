@@ -5,39 +5,39 @@
 
 <style>
 body{
-  font-family:Arial;
-  background:#f4f4f4;
-  text-align:center;
-  padding:40px;
+font-family:Arial;
+background:#f4f4f4;
+text-align:center;
+padding:40px;
 }
 
 .container{
-  background:white;
-  padding:30px;
-  border-radius:10px;
-  max-width:600px;
-  margin:auto;
-  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+background:white;
+padding:30px;
+border-radius:10px;
+max-width:600px;
+margin:auto;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
 
 input{
-  width:80%;
-  padding:10px;
-  margin-top:10px;
+width:80%;
+padding:10px;
+margin-top:10px;
 }
 
 button{
-  padding:10px 20px;
-  margin-top:10px;
-  cursor:pointer;
+padding:10px 20px;
+margin-top:10px;
+cursor:pointer;
 }
 
 #result{
-  margin-top:20px;
-  white-space:pre-wrap;
-  background:#fafafa;
-  padding:15px;
-  border-radius:5px;
+margin-top:20px;
+white-space:pre-wrap;
+background:#fafafa;
+padding:15px;
+border-radius:5px;
 }
 </style>
 
@@ -55,8 +55,8 @@ button{
 
 <p>
 Free: basic scripts (5/day)<br>
-🔥 Pro: viral optimized scripts + unlimited use<br>
-🎁 Includes 3-day free trial
+🔥 Pro: viral optimized scripts + unlimited<br>
+🎁 3-day free trial included
 </p>
 
 <input id="email" placeholder="Enter your email">
@@ -70,7 +70,7 @@ Free: basic scripts (5/day)<br>
 <button onclick="upgrade()">🔥 Start 3-Day Free Trial</button>
 
 <p style="font-size:14px;color:#555;">
-No charge today. Cancel anytime during trial.
+No charge today. Cancel anytime.
 </p>
 
 <p id="result"></p>
@@ -109,6 +109,13 @@ document.getElementById("result").innerText=data.text
 }
 
 function upgrade(){
+window.location.href="PASTE_YOUR_STRIPE_PAYMENT_LINK_HERE"
+}
+
+</script>
+
+</body>
+</html>
 window.location.href="PASTE_YOUR_STRIPE_PAYMENT_LINK_HERE"
 }
 
