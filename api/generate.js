@@ -7,7 +7,7 @@ apiKey: process.env.OPENAI_API_KEY
 let requests = {}
 
 // ADD YOUR EMAIL HERE TO TEST PRO
-const proUsers = ["your@email.com"]
+const proUsers = ["CHUCKYPBABY@GMAIL.COMm"]
 
 export default async function handler(req,res){
 
