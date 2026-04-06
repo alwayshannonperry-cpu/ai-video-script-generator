@@ -1,10 +1,7 @@
 {
   "name": "ai-video-script-generator",
   "version": "1.0.0",
-  "scripts": {
-    "vercel-build": "echo skip"
-  },
   "dependencies": {
-    "openai": "^4.9.0"
+    "stripe": "^14.0.0"
   }
 }
