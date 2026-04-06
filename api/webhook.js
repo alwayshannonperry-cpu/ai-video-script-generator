@@ -1,25 +1,23 @@
 import Stripe from "stripe";
+import { addUser } from "./users";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// TEMP storage (we will upgrade later)
-let proUsers = [];
-
 export const config = {
-  api: {
-    bodyParser: false,
-  },
+api: {
+bodyParser: false,
+},
 };
 
-export default async function handler(req, res) {
+export default async function handler(req, res){
+
+const sig = req.headers["stripe-signature"];
 
 let buf = await new Promise(resolve => {
 let data = [];
 req.on("data", chunk => data.push(chunk));
 req.on("end", () => resolve(Buffer.concat(data)));
 });
-
-const sig = req.headers["stripe-signature"];
 
 let event;
 
@@ -30,23 +28,20 @@ sig,
 process.env.STRIPE_WEBHOOK_SECRET
 );
 } catch (err) {
-console.error("Webhook signature error:", err.message);
 return res.status(400).send(`Webhook Error: ${err.message}`);
 }
 
-if (event.type === "checkout.session.completed") {
+// ✅ WHEN PAYMENT SUCCEEDS
+if(event.type === "checkout.session.completed"){
 
 const session = event.data.object;
 
-const email = session.customer_details?.email;
+const email = session.customer_details.email;
 
-console.log("EMAIL RECEIVED:", email);
-
-// store temporarily
-proUsers.push(email);
+addUser(email);
 
 console.log("PRO USER ADDED:", email);
 }
 
-res.status(200).json({ received: true });
+res.status(200).json({received:true});
 }
