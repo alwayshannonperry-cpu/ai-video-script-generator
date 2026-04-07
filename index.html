@@ -79,39 +79,35 @@ No charge today. Cancel anytime.
 
 <script>
 
-async function generate(){
+async function generate() {
+  const topic = document.getElementById("topic").value;
+  const email = document.getElementById("email").value;
 
-let email=document.getElementById("email").value
-let topic=document.getElementById("topic").value
+  const status = document.getElementById("status");
+  status.innerText = "Checking account...";
 
-if(!email){
-document.getElementById("result").innerText="Enter email"
-return
+  // check pro
+  const check = await fetch(`/api/check-pro?email=${email}`);
+  const data = await check.json();
+
+  status.innerText = "Generating script...";
+
+  const res = await fetch("/api/generate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      topic,
+      pro: data.pro
+    })
+  });
+
+  const result = await res.json();
+
+  document.getElementById("output").innerText = result.text;
+  status.innerText = "";
 }
-
-if(!topic){
-document.getElementById("result").innerText="Enter topic"
-return
-}
-
-document.getElementById("result").innerText="Generating..."
-
-let res=await fetch("/api/generate",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({email,topic})
-})
-
-let data=await res.json()
-
-document.getElementById("result").innerText=data.text
-
-}
-
-function upgrade(){
-window.location.href="https://buy.stripe.com/00w9ATfVncyaeKWaas2B200"
-}
-
 </script>
 
 </body>
