@@ -1,11 +1,12 @@
-let users = [];
+let proUsers = [];
 
-export function addUser(email){
-if(!users.includes(email)){
-users.push(email);
-}
+export function addUser(email) {
+  if (!proUsers.includes(email)) {
+    proUsers.push(email);
+    console.log("USER SAVED:", email);
+  }
 }
 
-export function isPro(email){
-return users.includes(email);
+export function isPro(email) {
+  return proUsers.includes(email);
 }
