@@ -1,4 +1,4 @@
-let proUsers = ["chuckypbaby@gmail.com"]; // TEMP
+let proUsers = ["chuckypbaby@gmail.com"]; // TEMP LIST
 
 export default function handler(req, res) {
   const { email } = req.query;
