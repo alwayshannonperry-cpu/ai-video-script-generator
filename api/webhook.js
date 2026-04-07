@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { addUser } from "./users";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -31,6 +32,10 @@ export default async function handler(req, res) {
       const email = session.customer_details?.email;
 
       console.log("PAYMENT SUCCESS:", email);
+
+      if (email) {
+        addUser(email); // 🔥 SAVE USER
+      }
     }
 
     res.status(200).json({ received: true });
