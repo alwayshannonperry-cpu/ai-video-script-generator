@@ -24,23 +24,31 @@ HASHTAGS.`;
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
-          {
-            role: "user",
-            content: prompt
-          }
+          { role: "user", content: prompt }
         ]
       })
     });
 
     const data = await response.json();
 
+    // 🔥 LOG FULL RESPONSE
+    console.log("OPENAI RESPONSE:", JSON.stringify(data));
+
+    // ✅ SAFE CHECK
+    if (!data.choices) {
+      return res.status(500).json({
+        text: "OpenAI error: " + JSON.stringify(data)
+      });
+    }
+
     res.status(200).json({
       text: data.choices[0].message.content
     });
 
   } catch (error) {
+    console.error("SERVER ERROR:", error);
     res.status(500).json({
-      text: "Error generating script"
+      text: "Server error generating script"
     });
   }
 }
