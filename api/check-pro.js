@@ -1,11 +1,9 @@
-let proUsers = ["chuckypbaby@gmail.com"]; // TEMP LIST
+import { isPro } from "./users";
 
 export default function handler(req, res) {
   const { email } = req.query;
 
-  if (proUsers.includes(email)) {
-    return res.status(200).json({ pro: true });
-  }
+  const pro = isPro(email);
 
-  res.status(200).json({ pro: false });
+  res.status(200).json({ pro });
 }
