@@ -1,121 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Viral Script Generator</title>
-
-<style>
-body{
-font-family:Arial;
-background:#f4f4f4;
-text-align:center;
-padding:40px;
-}
-
-.container{
-background:white;
-padding:30px;
-border-radius:10px;
-max-width:600px;
-margin:auto;
-box-shadow:0 5px 15px rgba(0,0,0,0.1);
-}
-
-input{
-width:80%;
-padding:10px;
-margin-top:10px;
-}
-
-button{
-padding:10px 20px;
-margin-top:10px;
-cursor:pointer;
-}
-
-#result{
-margin-top:20px;
-white-space:pre-wrap;
-background:#fafafa;
-padding:15px;
-border-radius:5px;
-}
-</style>
-
+  <title>AI Script Generator</title>
 </head>
 
-<body>
+<body style="font-family: Arial; text-align: center; padding: 40px;">
 
-<div class="container">
+  <h1>AI Video Script Generator</h1>
 
-<h1>Viral Video Script Generator</h1>
+  <p id="welcome"></p>
 
-<img src="https://cdn-icons-png.flaticon.com/512/4712/4712109.png" width="80">
+  <input id="email" placeholder="Enter your email" style="padding:10px; width:250px;"><br><br>
 
-<p><strong>Generate viral scripts in seconds</strong></p>
+  <input id="topic" placeholder="Enter topic" style="padding:10px; width:250px;"><br><br>
 
-<p>
-Free: basic scripts (5/day)<br>
-🔥 Pro: viral optimized scripts + unlimited<br>
-🎁 3-day free trial included
-</p>
+  <button onclick="generate()" style="padding:10px 20px;">Generate Script</button>
 
-<input id="email" placeholder="Enter your email">
-<br>
-<input id="topic" placeholder="Enter video topic">
-<br>
+  <br><br>
 
-<button onclick="generate()">Generate Script</button>
-<br>
+  <!-- STRIPE BUY BUTTON -->
+  <script async src="https://js.stripe.com/v3/buy-button.js"></script>
 
-<button onclick="upgrade()">🔥 Start 3-Day Free Trial</button>
+  <stripe-buy-button
+    buy-button-id="buy_btn_1TH27aIaAkGk1KTBFtIev5Dk"
+    publishable-key="pk_live_51TGBTSIaAkGk1KTBaGiQYnFniOfNDMYyPu0gSvGCvRRs0QqvhZ1MzE8muf0PiH5yuoH0aHDdh7pRC6kxH12P5V5U00V3ztUdki">
+  </stripe-buy-button>
 
-<p style="font-size:14px;color:#555;">
-No charge today. Cancel anytime.
-</p>
+  <p id="status"></p>
 
-<p id="result"></p>
+  <pre id="output" style="text-align:left; max-width:600px; margin:auto;"></pre>
 
-</div>
+  <script>
 
-<script>
+    // detect success from Stripe redirect
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("success")) {
+      document.getElementById("welcome").innerText = "Payment successful! You now have PRO access.";
+    }
 
-async function generate() {
-  const topic = document.getElementById("topic").value;
-  const email = document.getElementById("email").value;
+    async function generate() {
+      const topic = document.getElementById("topic").value;
+      const email = document.getElementById("email").value;
+      const status = document.getElementById("status");
 
-  const status = document.getElementById("status");
-  status.innerText = "Checking account...";
+      if (!email) {
+        alert("Enter your email");
+        return;
+      }
 
-  // check pro
-  const check = await fetch(`/api/check-pro?email=${email}`);
-  const data = await check.json();
+      status.innerText = "Checking account...";
 
-  status.innerText = "Generating script...";
+      const check = await fetch(`/api/check-pro?email=${email}`);
+      const data = await check.json();
 
-  const res = await fetch("/api/generate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      topic,
-      pro: data.pro
-    })
-  });
+      status.innerText = "Generating script...";
 
-  const result = await res.json();
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          topic,
+          pro: data.pro
+        })
+      });
 
-  document.getElementById("output").innerText = result.text;
-  status.innerText = "";
-}
-</script>
+      const result = await res.json();
 
-</body>
-</html>
-window.location.href="PASTE_YOUR_STRIPE_PAYMENT_LINK_HERE"
-}
+      document.getElementById("output").innerText = result.text;
+      status.innerText = "";
+    }
 
-</script>
+  </script>
 
 </body>
 </html>
