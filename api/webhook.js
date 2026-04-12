@@ -1,47 +1,24 @@
-import Stripe from "stripe";
-import { addUser } from "./users";
+import { paidUsers } from "@/lib/store";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+export async function POST(req) {
+  const body = await req.json();
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+  console.log("Webhook event:", body.type);
 
-export default async function handler(req, res) {
-  try {
-    const chunks = [];
+  if (body.type === "checkout.session.completed") {
+    const session = body.data.object;
 
-    for await (const chunk of req) {
-      chunks.push(chunk);
+    const email = session.customer_details?.email;
+
+    console.log("💰 Payment successful for:", email);
+
+    if (email) {
+      paidUsers.add(email);
+      console.log("✅ User marked as paid:", email);
     }
-
-    const buf = Buffer.concat(chunks);
-
-    const sig = req.headers["stripe-signature"];
-
-    const event = stripe.webhooks.constructEvent(
-      buf,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
-
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object;
-      const email = session.customer_details?.email;
-
-      console.log("PAYMENT SUCCESS:", email);
-
-      if (email) {
-        addUser(email); // 🔥 SAVE USER
-      }
-    }
-
-    res.status(200).json({ received: true });
-
-  } catch (err) {
-    console.error("WEBHOOK ERROR:", err.message);
-    res.status(400).send(`Webhook Error: ${err.message}`);
   }
+
+  return new Response(JSON.stringify({ received: true }), {
+    status: 200,
+  });
 }
