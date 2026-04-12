@@ -1,54 +1,44 @@
-export default async function handler(req, res) {
+import OpenAI from "openai";
+import { paidUsers } from "@/lib/store";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+export async function POST(req) {
+  const body = await req.json();
+  const { prompt, email } = body;
+
+  console.log("Generate request from:", email);
+
+  // 🚫 BLOCK if not paid
+  if (!paidUsers.has(email)) {
+    return new Response(
+      JSON.stringify({ error: "User has not paid" }),
+      { status: 403 }
+    );
+  }
+
   try {
-
-    const { topic, pro } = req.body;
-
-    const prompt = pro
-      ? `Write a HIGHLY viral TikTok script about ${topic}. Include:
-HOOK (pattern interrupt),
-SCRIPT (high engagement),
-CAPTION (optimized),
-HASHTAGS (trending).`
-      : `Write a simple basic TikTok script about ${topic}. Include:
-HOOK,
-SCRIPT,
-CAPTION,
-HASHTAGS.`;
-
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "user", content: prompt }
-        ]
-      })
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "user", content: prompt }
+      ],
     });
 
-    const data = await response.json();
+    const result = completion.choices[0].message.content;
 
-    // 🔥 LOG FULL RESPONSE
-    console.log("OPENAI RESPONSE:", JSON.stringify(data));
-
-    // ✅ SAFE CHECK
-    if (!data.choices) {
-      return res.status(500).json({
-        text: "OpenAI error: " + JSON.stringify(data)
-      });
-    }
-
-    res.status(200).json({
-      text: data.choices[0].message.content
+    return new Response(JSON.stringify({ result }), {
+      status: 200,
     });
 
-  } catch (error) {
-    console.error("SERVER ERROR:", error);
-    res.status(500).json({
-      text: "Server error generating script"
-    });
+  } catch (err) {
+    console.error("OpenAI error:", err);
+
+    return new Response(
+      JSON.stringify({ error: "Generation failed" }),
+      { status: 500 }
+    );
   }
 }
