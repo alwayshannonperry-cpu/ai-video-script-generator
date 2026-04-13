@@ -11,12 +11,12 @@ export async function POST(req) {
     const prompt = body.prompt;
     const email = body.email;
 
-    console.log("Generate request from:", email);
+    console.log("Generate request:", email);
 
-    // 🚫 Block if not paid
+    // 🔒 BLOCK if not paid
     if (!paidUsers.has(email)) {
       return new Response(
-        JSON.stringify({ error: "User has not paid" }),
+        JSON.stringify({ error: "Please complete payment first" }),
         { status: 403 }
       );
     }
@@ -37,11 +37,11 @@ export async function POST(req) {
       status: 200,
     });
 
-  } catch (error) {
-    console.error("Generate API error:", error);
+  } catch (err) {
+    console.error("Generate error:", err);
 
     return new Response(
-      JSON.stringify({ error: "Something went wrong" }),
+      JSON.stringify({ error: "Generation failed" }),
       { status: 500 }
     );
   }
