@@ -6,24 +6,28 @@ const openai = new OpenAI({
 });
 
 export async function POST(req) {
-  const body = await req.json();
-  const { prompt, email } = body;
-
-  console.log("Generate request from:", email);
-
-  // 🚫 BLOCK if not paid
-  if (!paidUsers.has(email)) {
-    return new Response(
-      JSON.stringify({ error: "User has not paid" }),
-      { status: 403 }
-    );
-  }
-
   try {
+    const body = await req.json();
+    const prompt = body.prompt;
+    const email = body.email;
+
+    console.log("Generate request from:", email);
+
+    // 🚫 Block if not paid
+    if (!paidUsers.has(email)) {
+      return new Response(
+        JSON.stringify({ error: "User has not paid" }),
+        { status: 403 }
+      );
+    }
+
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
-        { role: "user", content: prompt }
+        {
+          role: "user",
+          content: prompt,
+        },
       ],
     });
 
@@ -33,11 +37,11 @@ export async function POST(req) {
       status: 200,
     });
 
-  } catch (err) {
-    console.error("OpenAI error:", err);
+  } catch (error) {
+    console.error("Generate API error:", error);
 
     return new Response(
-      JSON.stringify({ error: "Generation failed" }),
+      JSON.stringify({ error: "Something went wrong" }),
       { status: 500 }
     );
   }
