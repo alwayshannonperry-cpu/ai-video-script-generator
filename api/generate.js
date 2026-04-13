@@ -1,48 +1,78 @@
-import OpenAI from "openai";
-import { paidUsers } from "@/lib/store";
+"use client";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { useState } from "react";
 
-export async function POST(req) {
-  try {
-    const body = await req.json();
-    const prompt = body.prompt;
-    const email = body.email;
+export default function Home() {
+  const [prompt, setPrompt] = useState("");
+  const [result, setResult] = useState("");
 
-    console.log("Generate request:", email);
+  async function handleGenerate() {
+    // 1. Get saved email
+    let email = localStorage.getItem("userEmail");
 
-    // 🔒 BLOCK if not paid
-    if (!paidUsers.has(email)) {
-      return new Response(
-        JSON.stringify({ error: "Please complete payment first" }),
-        { status: 403 }
-      );
+    // 2. Ask once if not saved
+    if (!email) {
+      email = window.prompt("Enter your email:");
+
+      if (!email) {
+        alert("Email is required");
+        return;
+      }
+
+      localStorage.setItem("userEmail", email);
     }
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "user",
-          content: prompt,
+    // 3. Try to generate (checks payment)
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prompt, email }),
+    });
+
+    const data = await res.json();
+
+    // 4. If NOT paid → send to Stripe
+    if (data.error) {
+      const checkout = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      ],
-    });
+        body: JSON.stringify({ prompt }),
+      });
 
-    const result = completion.choices[0].message.content;
+      const checkoutData = await checkout.json();
 
-    return new Response(JSON.stringify({ result }), {
-      status: 200,
-    });
+      window.location.href = checkoutData.url;
+      return;
+    }
 
-  } catch (err) {
-    console.error("Generate error:", err);
-
-    return new Response(
-      JSON.stringify({ error: "Generation failed" }),
-      { status: 500 }
-    );
+    // 5. If paid → show result
+    setResult(data.result);
   }
+
+  return (
+    <div style={{ padding: "40px" }}>
+      <h1>AI Script Generator</h1>
+
+      <input
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        placeholder="Enter your idea..."
+        style={{ width: "300px", padding: "10px" }}
+      />
+
+      <br /><br />
+
+      <button onClick={handleGenerate}>
+        Generate
+      </button>
+
+      <br /><br />
+
+      <pre>{result}</pre>
+    </div>
+  );
 }
