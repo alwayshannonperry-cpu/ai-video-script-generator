@@ -9,11 +9,9 @@ export async function POST(req) {
 
       const email = session.customer_details?.email;
 
-      console.log("💰 Payment success from:", email);
-
       if (email) {
         paidUsers.add(email);
-        console.log("✅ User saved as paid:", email);
+        console.log("Paid user:", email);
       }
     }
 
@@ -22,10 +20,11 @@ export async function POST(req) {
     });
 
   } catch (err) {
-    console.error("Webhook error:", err);
+    console.error(err);
 
-    return new Response(JSON.stringify({ error: "Webhook failed" }), {
-      status: 400,
-    });
+    return new Response(
+      JSON.stringify({ error: "Webhook error" }),
+      { status: 400 }
+    );
   }
 }
