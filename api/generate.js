@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { paidUsers } from "@/lib/store";
+import { paidUsers } from "../../../lib/store";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
