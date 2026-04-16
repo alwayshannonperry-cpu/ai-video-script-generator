@@ -1,7 +1,8 @@
 {
   "name": "ai-video-script-generator",
   "version": "1.0.0",
-  "dependencies":"openai": "^4.0.0", {
+  "dependencies": {
+    "openai": "^4.0.0", 
     "stripe": "^14.0.0"
   }
 }
